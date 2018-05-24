@@ -1,5 +1,5 @@
 <template>
-  <div class="login" v-bind:style="{paddingTop: paddings}">
+  <div class="login">
     <div class="loginheader">
       <img src="../assets/applongin.png"/>
       <div class="logintitle">星呗钱包</div>
@@ -21,7 +21,6 @@ export default {
   },
   data () {
     return {
-      paddings: '0',
       secret: '',
       returndata: ''
     }
@@ -56,7 +55,6 @@ export default {
       this.$router.push({path: '/reg', name: 'reg'})
     },
     plusReadys () {
-      this.paddings = statusbar.getStatusbarHeight()
       statusbar.setStatusBarStyle('dark')
     }
   },

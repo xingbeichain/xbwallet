@@ -5,7 +5,6 @@ import { ToastPlugin, AjaxPlugin, TransferDom } from 'vux'
 import Index from './routers/index'
 import Login from './routers/login'
 import Reg from './routers/reg'
-import Reg2 from './routers/reg2'
 import plusReady from './plus/plusReady.js'
 
 Vue.use(VueRoutre)
@@ -19,10 +18,9 @@ FastClick.attach(document.body)
 
 const router = new VueRoutre({
   routes: [
-    {path: '/', name: 'index', component: Index, meta: { title: '星呗钱包' }},
-    {path: '/login', name: 'login', component: Login, meta: { title: '登录' }},
-    {path: '/reg', name: 'reg', component: Reg, meta: { title: '创建钱包账户' }},
-    {path: '/reg2', name: 'reg2', component: Reg2, meta: { title: '创建钱包账户' }}
+    {path: '/', name: 'index', component: Index, meta: {title: '星呗钱包', index: 3}},
+    {path: '/login', name: 'login', component: Login, meta: {title: '登录', index: 1}},
+    {path: '/reg', name: 'reg', component: Reg, meta: {title: '创建钱包账户', index: 2}}
   ]
 })
 router.beforeEach((route, redirect, next) => {
