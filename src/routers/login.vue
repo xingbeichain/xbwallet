@@ -1,7 +1,7 @@
 <template>
-  <div class="login">
+  <div class="login" v-bind:style="{paddingTop: paddings}">
     <div class="loginheader">
-      <img src="../assets/applongin.png"/>
+      <img src="../assets/images/applongin.png"/>
       <div class="logintitle">星呗钱包</div>
     </div>
     <group style="margin-top: 50px;margin-bottom: 20px">
@@ -13,14 +13,16 @@
 </template>
 
 <script>
-import { XTextarea, Group, XButton, cookie } from 'vux'
+import { XTextarea, Group, XButton } from 'vux'
 import statusbar from '../plus/statusbar'
+import webview from '../plus/webview'
+import backReady from '../plus/backReady'
+const baseUrl = 'http://120.24.216.224:8360/api'
 export default {
-  components: {
-    XTextarea, Group, XButton
-  },
+  components: {XTextarea, Group, XButton},
   data () {
     return {
+      paddings: 0,
       secret: '',
       returndata: ''
     }
@@ -35,15 +37,18 @@ export default {
         return
       }
       const secret = this.secret
-      this.$http.post('http://192.168.2.102:8360/api/account/login', {secret: secret}).then(response => {
+      this.$http.post(baseUrl + '/account/login', {secret: secret}).then(response => {
         this.returndata = response.data
         if (this.returndata.errno === 0) {
           this.$vux.toast.show({
             text: this.returndata.errmsg,
             position: 'middle',
             onHide: () => {
-              cookie.set('token', this.returndata.data)
-              this.$router.push({path: '/index', name: 'index'})
+              window.localStorage.setItem('token', this.returndata.data)
+              // this.$router.push({path: '/index', name: 'index'})
+              this.plusReady(function () {
+                webview.open('index.html#/', 'index')
+              })
             }
           })
         } else {
@@ -52,10 +57,33 @@ export default {
       })
     },
     reg1 () {
-      this.$router.push({path: '/reg', name: 'reg'})
+      // this.$router.push({path: '/reg', name: 'reg'})
+      webview.open('index.html#/reg', 'reg',
+        {
+          backButtonAutoControl: 'close',
+          titleNView: {autoBackButton: true, backgroundColor: '#ffffff', titleText: '创建钱包账户'}
+        }
+      )
+    },
+    backaction () {
+      let first = null
+      backReady.backReady(() => {
+        if (!first) {
+          first = new Date().getTime()
+          setTimeout(function () { first = null }, 2000)
+          this.$vux.toast.show({text: '再按一次退出钱包', type: 'text', position: 'bottom'})
+        } else {
+          if (new Date().getTime() - first < 2000) {
+            backReady.quit()
+          }
+        }
+      })
     },
     plusReadys () {
-      statusbar.setStatusBarStyle('dark')
+      this.paddings = statusbar.getStatusbarHeight()
+      statusbar.setStatusBarStyle('light')
+      webview.closeall()
+      this.backaction()
     }
   },
   created: function () {

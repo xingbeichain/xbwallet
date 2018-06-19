@@ -1,8 +1,7 @@
 <template>
-  <transition :name="transitionName">
-    <router-view></router-view>
-  </transition>
+  <router-view></router-view>
 </template>
+<!--
 <script>
 import backReady from './plus/backReady'
 export default {
@@ -15,9 +14,9 @@ export default {
   watch: {
     $route (to, from) {
       if (to.meta.index > from.meta.index) {
-        this.transitionName = 'slide-left'
+        this.transitionName = 'turn-on'
       } else {
-        this.transitionName = 'slide-right'
+        this.transitionName = 'turn-off'
       }
       if (navigator.userAgent.indexOf('Html5Plus') > -1) {
         this.plusReady(this.backaction)
@@ -48,7 +47,8 @@ export default {
   }
 }
 </script>
+-->
 <style lang="less">
   @import '~vux/src/styles/reset.less';
-  @import "./assets/app.less";
+  @import "./assets/less/app.less";
 </style>

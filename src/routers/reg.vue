@@ -1,23 +1,23 @@
 <template>
   <div class="reg">
-    <div class="xheader" v-bind:style="{paddingTop: paddings}">
+<!--    <div class="xheader" v-bind:style="{paddingTop: paddings}">
       <x-header :left-options="{backText: ''}" style="background-color:#ffffff;">创建钱包账户</x-header>
-    </div>
+    </div>-->
     <div class="reginfo">
       <step v-model="step" background-color='#f5f6f8' gutter="10px">
         <step-item title="创建主密码"></step-item>
         <step-item title="确认主密码"></step-item>
         <step-item title="创建账户成功"></step-item>
       </step>
-      <transition :name="transitionName">
+      <transition name="turn-on">
         <div v-show="step1">
           <group title="请保存主密码,它将是你登录的唯一依据" style="margin-top: 50px;margin-bottom: 20px">
-            <x-textarea title="主密码：" v-model="secret" autosize></x-textarea>
+            <div @click="copysecret"><x-textarea title="主密码：" v-model="secret" autosize disabled></x-textarea></div>
           </group>
           <x-button :gradients="['#d9ab78', '#f2cca2']" @click.native="regstep1">我已保存助记词，下一步</x-button>
         </div>
       </transition>
-      <transition :name="transitionName">
+      <transition name="turn-on">
         <div v-show="step2">
           <group style="margin-top: 50px;margin-bottom: 20px">
             <x-textarea placeholder="请输入刚才保存的主密码" autosize v-model="regsecret"></x-textarea>
@@ -25,11 +25,11 @@
           <x-button :gradients="['#d9ab78', '#f2cca2']" :show-loading="loadings" :disabled="disableds" @click.native="regstep2">确认创建账户</x-button>
         </div>
       </transition>
-      <transition :name="transitionName">
+      <transition name="turn-on">
         <div v-show="step3">
-          <msg title="账户创建成功" description="请牢记主密码，它将是你登录钱包的唯一依据！" icon="success">
+          <msg title="账户创建成功" description="请牢记主密码，它将是你登录钱包的唯一依据！测试版钱包注册将赠送100XBC，您可以进入钱包查看" icon="success">
             <template slot="buttons">
-              <x-button :gradients="['#d9ab78', '#f2cca2']" link="/">进入钱包</x-button>
+              <x-button :gradients="['#d9ab78', '#f2cca2']" @click.native="toindex">进入钱包</x-button>
             </template>
           </msg>
         </div>
@@ -41,12 +41,13 @@
 <script>
 import { XHeader, Step, StepItem, XButton, XTextarea, Group, Msg } from 'vux'
 import statusbar from '../plus/statusbar'
+import webview from '../plus/webview'
+import pasteboard from '../plus/pasteboard'
+const baseUrl = 'http://120.24.216.224:8360/api'
 export default {
   components: {XHeader, Step, StepItem, XButton, XTextarea, Group, Msg},
   data () {
     return {
-      paddings: '0',
-      transitionName: '',
       step1: true,
       step2: false,
       step3: false,
@@ -62,7 +63,6 @@ export default {
     regstep1 () {
       this.step1 = false
       this.step2 = true
-      this.transitionName = 'slide-left'
       this.step = 1
       window.localStorage.setItem('regsecret', this.secret)
     },
@@ -77,7 +77,7 @@ export default {
     },
     createaccount () {
       const secret = this.regsecret
-      this.$http.post('http://192.168.2.102:8360/api/account/reg', {secret: secret}).then(response => {
+      this.$http.post(baseUrl + '/account/reg', {secret: secret}).then(response => {
         this.returndata = response.data
         if (this.returndata.errno === 0) {
           window.localStorage.setItem('token', this.returndata.data)
@@ -91,6 +91,17 @@ export default {
         this.loadings = false
         this.disableds = false
       })
+    },
+    copysecret () {
+      if (navigator.userAgent.indexOf('Html5Plus') > -1) {
+        this.plusReady(() => {
+          pasteboard(this.secret)
+          this.$vux.toast.show({text: '复制成功', type: 'text', position: 'middle'})
+        })
+      }
+    },
+    toindex () {
+      webview.open('index.html#/', 'index')
     },
     plusReadys () {
       this.paddings = statusbar.getStatusbarHeight()
